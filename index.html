@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora</title>
+    <style>
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        color: #333;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+      }
+
+      section {
+        display: flex;
+        justify-content: space-between;
+        gap: 3rem;
+      }
+
+      .box {
+        margin: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Calculadora de unidades</h1>
+        <select name="" id="magnitudes"></select>
+        <button id="calculate">Calcular</button>
+      </header>
+
+      <section>
+        <div class="box">
+          <input type="text" id="field" />
+          <select name="" id="" class="unidades"></select>
+        </div>
+
+        <div class="box">
+          <input type="text" id="result" disabled />
+          <select name="" id="" class="unidades"></select>
+        </div>
+      </section>
+    </main>
+  </body>
+
+  <script>
+    const $magnitudes = document.querySelector("#magnitudes");
+    const $unidades = document.querySelectorAll(".unidades");
+    const $field = document.querySelector("#field");
+    const $result = document.querySelector("#result");
+    const $calculate = document.querySelector("#calculate");
+
+    const MAGNITUDES = {
+      longitud: ["metro", "kilometro", "centimetro", "pulgada", "pie", "yarda"],
+      temperatura: ["fahrenheit", "celsius", "kelvin"],
+    };
+
+    const CALCULATOR = {
+      metro: (target, value) => {
+        switch (target) {
+          case "kilometro":
+            return value / 1000;
+          case "centimetro":
+            return value * 100;
+          case "pulgada":
+            return value * 39.3701;
+          case "pie":
+            return value * 3.28084;
+          case "yarda":
+            return value * 1.09361;
+          case "metro":
+          default:
+            return value;
+        }
+      },
+      kilometro: (target, value) => CALCULATOR["metro"](target, value * 1000),
+      centimetro: (target, value) => CALCULATOR["metro"](target, value / 100),
+      pulgada: (target, value) => CALCULATOR["metro"](target, value / 39.37),
+      pie: (target, value) => CALCULATOR["metro"](target, value / 3.281),
+      yarda: (target, value) => CALCULATOR["metro"](target, value / 1.094),
+
+      celsius: (target, value) => {
+        switch (target) {
+          case "fahrenheit":
+            return value * 1.8 + 32;
+          case "kelvin":
+            return value + 273.15;
+          case "celsius":
+          default:
+            return value;
+        }
+      },
+      fahrenheit: (target, value) =>
+        CALCULATOR["celsius"](target, (value - 32) / 1.8),
+      kelvin: (target, value) => CALCULATOR["celsius"](target, value - 273.15),
+    };
+
+    $magnitudes.innerHTML = Object.keys(MAGNITUDES)
+      .map((magnitud) => `<option value=${magnitud}>${magnitud}</option>`)
+      .join("\n");
+
+    const updateSelectors = () => {
+      $unidades.forEach(($unidad) => {
+        $unidad.innerHTML = MAGNITUDES[$magnitudes.value]
+          .map((unidad) => `<option value=${unidad}>${unidad}</option>`)
+          .join("\n");
+      });
+    };
+
+    $magnitudes.addEventListener("change", updateSelectors);
+    updateSelectors();
+
+    const getResult = () => {
+      const value = Number($field.value);
+      const from = $unidades[0].value;
+      const to = $unidades[1].value;
+      const result = CALCULATOR[from](to, value);
+
+      $result.value = Number.isNaN(result) ? "Ingresa un número" : result;
+    };
+
+    $calculate.addEventListener("click", getResult);
+  </script>
+</html>
